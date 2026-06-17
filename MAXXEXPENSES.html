@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxxExpenses — Gestão de Despesas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+
+  :root {
+    --green-900: #0a2818;
+    --green-800: #134d2e;
+    --green-600: #1a7a44;
+    --green-400: #22c55e;
+    --green-300: #4ade80;
+    --green-100: #dcfce7;
+    --green-50:  #f0fdf4;
+    --slate-900: #0f172a;
+    --slate-700: #334155;
+    --slate-500: #64748b;
+    --slate-300: #cbd5e1;
+    --slate-100: #f1f5f9;
+    --slate-50:  #f8fafc;
+    --white: #ffffff;
+    --red-500: #ef4444;
+    --amber-400: #fbbf24;
+    --blue-500: #3b82f6;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.14);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--slate-100);
+    color: var(--slate-900);
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ────────────────────────────────── */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--green-900);
+    display: flex; flex-direction: column;
+    padding: 28px 16px;
+    position: sticky; top: 0; height: 100vh;
+  }
+
+  .logo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--green-300);
+    margin-bottom: 36px;
+    display: flex; align-items: center; gap: 10px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--green-600);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .nav-label {
+    font-size: 10px; font-weight: 600;
+    color: var(--green-600);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin: 20px 8px 8px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: #9ca3af;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: all .18s;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    background: var(--green-800);
+    color: var(--green-300);
+  }
+
+  .nav-item .icon { font-size: 18px; }
+
+  /* ── MAIN ───────────────────────────────────── */
+  .main { flex: 1; display: flex; flex-direction: column; }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--slate-300);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--slate-900);
+  }
+
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .content { padding: 28px 32px; flex: 1; }
+
+  /* ── CARDS ─────────────────────────────────── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--slate-100);
+  }
+
+  .card-label {
+    font-size: 12px; font-weight: 600;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 10px;
+  }
+
+  .card-value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 28px; font-weight: 800;
+    color: var(--slate-900);
+    line-height: 1;
+  }
+
+  .card-value.green { color: var(--green-600); }
+  .card-value.red   { color: var(--red-500); }
+
+  .card-sub {
+    font-size: 12px; color: var(--slate-500);
+    margin-top: 6px;
+  }
+
+  /* ── BUTTON ─────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all .17s;
+  }
+
+  .btn-primary {
+    background: var(--green-600);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: var(--green-800); }
+
+  .btn-ghost {
+    background: var(--slate-100);
+    color: var(--slate-700);
+  }
+  .btn-ghost:hover { background: var(--slate-300); }
+
+  .btn-danger {
+    background: #fef2f2;
+    color: var(--red-500);
+  }
+  .btn-danger:hover { background: #fee2e2; }
+
+  /* ── MODAL ─────────────────────────────────── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 32px;
+    width: 540px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp .25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .modal-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px; font-weight: 800;
+    margin-bottom: 24px;
+    color: var(--slate-900);
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-full { grid-column: 1/-1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--slate-700); }
+
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 10px 12px;
+    border: 1.5px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-family: inherit;
+    color: var(--slate-900);
+    transition: border .15s;
+    background: var(--white);
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--green-400);
+    box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+  }
+
+  .field textarea { resize: vertical; min-height: 70px; }
+
+  /* ── PHOTO UPLOAD ───────────────────────────── */
+  .photo-upload {
+    border: 2px dashed var(--slate-300);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-upload:hover { border-color: var(--green-400); background: var(--green-50); }
+  .photo-upload input { display: none; }
+
+  .photo-upload img {
+    max-height: 160px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .photo-upload-label {
+    font-size: 13px; color: var(--slate-500);
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ── TABLE ─────────────────────────────────── */
+  .table-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--slate-100);
+    overflow: hidden;
+  }
+
+  .table-header {
+    padding: 18px 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--slate-100);
+  }
+
+  .table-header h3 {
+    font-size: 15px; font-weight: 700;
+    color: var(--slate-900);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    background: var(--slate-50);
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--slate-500);
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--slate-100);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--slate-100);
+    transition: background .12s;
+    cursor: pointer;
+  }
+  tbody tr:hover { background: var(--green-50); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td { padding: 13px 16px; font-size: 14px; color: var(--slate-700); vertical-align: middle; }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .badge-pending   { background: #fef9c3; color: #854d0e; }
+  .badge-approved  { background: var(--green-100); color: var(--green-800); }
+  .badge-rejected  { background: #fef2f2; color: var(--red-500); }
+
+  .amount-cell { font-weight: 700; color: var(--slate-900); }
+
+  .thumb {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--slate-200);
+    background: var(--slate-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--slate-400);
+    overflow: hidden;
+  }
+
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ── FILTERS ─────────────────────────────────  */
+  .filters {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .filters select,
+  .filters input {
+    padding: 8px 12px;
+    border: 1.5px solid var(--slate-300);
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-family: inherit;
+    color: var(--slate-700);
+    background: var(--white);
+  }
+  .filters select:focus, .filters input:focus {
+    outline: none; border-color: var(--green-400);
+  }
+
+  /* ── PERSON AVATAR ─────────────────────────── */
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--green-600);
+    color: var(--white);
+    font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .person-cell { display: flex; align-items: center; gap: 8px; }
+
+  /* ── TABS ─────────────────────────────────── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 22px; }
+
+  .tab {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+    background: var(--white);
+    color: var(--slate-500);
+    transition: all .15s;
+    border: 1.5px solid var(--slate-200);
+  }
+  .tab.active { background: var(--green-600); color: var(--white); border-color: var(--green-600); }
+  .tab:hover:not(.active) { background: var(--slate-100); }
+
+  /* ── PERSON REPORT ─────────────────────────── */
+  .person-report-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 24px;
+  }
+
+  .person-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--slate-100);
+    cursor: pointer;
+    transition: all .17s;
+  }
+  .person-card:hover { border-color: var(--green-400); box-shadow: var(--shadow-lg); }
+
+  .person-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+
+  .person-card-name {
+    font-size: 15px; font-weight: 700;
+    color: var(--slate-900);
+  }
+
+  .person-card-role {
+    font-size: 12px; color: var(--slate-500);
+    margin-top: 2px;
+  }
+
+  .person-stat { display: flex; justify-content: space-between; margin-top: 8px; }
+  .person-stat-label { font-size: 12px; color: var(--slate-500); }
+  .person-stat-value { font-size: 13px; font-weight: 700; color: var(--slate-900); }
+
+  /* ── TOAST ─────────────────────────────────── */
+  #toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: var(--slate-900);
+    color: var(--white);
+    padding: 13px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+    z-index: 999;
+    max-width: 320px;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ── GITHUB SETUP ──────────────────────────── */
+  .github-banner {
+    background: linear-gradient(135deg, #0d1117, #1a2332);
+    color: #e6edf3;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 22px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .github-banner-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .github-banner-text p { font-size: 12px; color: #8b949e; }
+
+  /* ── EMPTY STATE ────────────────────────────── */
+  .empty {
+    text-align: center; padding: 60px 20px;
+    color: var(--slate-500);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h4 { font-size: 16px; font-weight: 600; color: var(--slate-700); margin-bottom: 6px; }
+  .empty p { font-size: 13px; }
+
+  /* ── RECEIPT LIGHTBOX ───────────────────────── */
+  .lightbox {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.85);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 90vw; max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  }
+
+  .close-btn {
+    position: absolute; top: 20px; right: 20px;
+    background: rgba(255,255,255,.15);
+    border: none; color: white;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+    .topbar { padding: 14px 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .person-report-grid { grid-template-columns: 1fr; }
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .section { display: none; }
+  .section.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">💸</span>
+      MaxxExpenses
+    </div>
+    <span class="nav-label">Principal</span>
+    <button class="nav-item active" onclick="showSection('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="showSection('expenses')">
+      <span class="icon">🧾</span> Despesas
+    </button>
+    <button class="nav-item" onclick="showSection('persons')">
+      <span class="icon">👤</span> Por Pessoa
+    </button>
+    <button class="nav-item" onclick="showSection('monthly')">
+      <span class="icon">📅</span> Por Mês
+    </button>
+
+    <span class="nav-label">Config</span>
+    <button class="nav-item" onclick="showSection('people')">
+      <span class="icon">🏢</span> Equipe
+    </button>
+    <button class="nav-item" onclick="showSection('settings')">
+      <span class="icon">⚙️</span> Configurações
+    </button>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="exportCSV()">⬇ Exportar CSV</button>
+        <button class="btn btn-primary" onclick="openModal('expense')">+ Nova Despesa</button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div id="sec-dashboard" class="section active">
+        <div id="githubBanner" class="github-banner">
+          <div class="github-banner-text">
+            <h4>🔗 Salve seus dados no GitHub Gist</h4>
+            <p>Configure um token para persistir o histórico na nuvem, acessível de qualquer lugar.</p>
+          </div>
+          <button class="btn btn-ghost" style="background:#21262d;color:#e6edf3;border:1px solid #30363d" onclick="showSection('settings')">
+            Configurar agora →
+          </button>
+        </div>
+
+        <div class="cards-grid" id="dashCards"></div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3>📋 Últimas despesas</h3>
+          </div>
+          <div id="dashTable"></div>
+        </div>
+      </div>
+
+      <!-- ── DESPESAS ── -->
+      <div id="sec-expenses" class="section">
+        <div class="filters">
+          <input type="month" id="filterMonth" onchange="renderExpenses()" />
+          <select id="filterPerson" onchange="renderExpenses()">
+            <option value="">Todas as pessoas</option>
+          </select>
+          <select id="filterStatus" onchange="renderExpenses()">
+            <option value="">Todos os status</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Aprovado">Aprovado</option>
+            <option value="Rejeitado">Rejeitado</option>
+          </select>
+          <select id="filterCat" onchange="renderExpenses()">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3 id="expTableTitle">Todas as Despesas</h3>
+            <span id="expTotal" style="font-size:13px;font-weight:700;color:var(--green-600)"></span>
+          </div>
+          <div id="expTable"></div>
+        </div>
+      </div>
+
+      <!-- ── POR PESSOA ── -->
+      <div id="sec-persons" class="section">
+        <div id="personCards"></div>
+        <div id="personDetail" style="display:none">
+          <button class="btn btn-ghost" onclick="document.getElementById('personDetail').style.display='none';document.getElementById('personCards').style.display='grid'" style="margin-bottom:16px">
+            ← Voltar
+          </button>
+          <div class="cards-grid" id="personDetailCards"></div>
+          <div class="table-card">
+            <div class="table-header"><h3 id="personDetailTitle"></h3></div>
+            <div id="personDetailTable"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── POR MÊS ── -->
+      <div id="sec-monthly" class="section">
+        <div id="monthlyTable"></div>
+      </div>
+
+      <!-- ── EQUIPE ── -->
+      <div id="sec-people" class="section">
+        <div style="margin-bottom:16px">
+          <button class="btn btn-primary" onclick="openModal('person')">+ Adicionar Pessoa</button>
+        </div>
+        <div id="peopleList"></div>
+      </div>
+
+      <!-- ── CONFIGURAÇÕES ── -->
+      <div id="sec-settings" class="section">
+        <div class="card" style="max-width:560px">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:18px">🔗 Integração GitHub Gist</h3>
+          <p style="font-size:13px;color:var(--slate-500);margin-bottom:20px;line-height:1.6">
+            Seus dados são salvos localmente. Para sincronizar com a nuvem e acessar de qualquer dispositivo, configure um <strong>GitHub Personal Access Token</strong> com permissão <code>gist</code>.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="field">
+              <label>GitHub Token (com permissão gist)</label>
+              <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+            </div>
+            <div class="field">
+              <label>Gist ID (deixe em branco para criar novo)</label>
+              <input type="text" id="ghGistId" placeholder="Será preenchido após o primeiro sync" />
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-primary" onclick="saveGithubSettings()">Salvar e Sincronizar</button>
+              <button class="btn btn-ghost" onclick="syncFromGist()">🔄 Importar do Gist</button>
+            </div>
+          </div>
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--slate-100)">
+            <h4 style="font-size:14px;font-weight:600;margin-bottom:12px">📦 Dados Locais</h4>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-ghost" onclick="exportJSON()">⬇ Exportar JSON</button>
+              <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">⬆ Importar JSON</button>
+              <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)" />
+            </div>
+          </div>
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--slate-100)">
+            <button class="btn btn-danger" onclick="clearData()">🗑 Limpar todos os dados</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ── MODALS ── -->
+
+<!-- Modal: Nova Despesa -->
+<div class="overlay" id="modalExpense">
+  <div class="modal">
+    <h2 class="modal-title" id="expModalTitle">Nova Despesa</h2>
+    <div class="form-grid">
+      <div class="field form-full">
+        <label>Pessoa *</label>
+        <select id="ePersonId" required></select>
+      </div>
+      <div class="field">
+        <label>Data *</label>
+        <input type="date" id="eDate" required />
+      </div>
+      <div class="field">
+        <label>Valor (R$) *</label>
+        <input type="number" id="eAmount" min="0" step="0.01" placeholder="0,00" required />
+      </div>
+      <div class="field">
+        <label>Categoria *</label>
+        <select id="eCategory"></select>
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="eStatus">
+          <option value="Pendente">Pendente</option>
+          <option value="Aprovado">Aprovado</option>
+          <option value="Rejeitado">Rejeitado</option>
+        </select>
+      </div>
+      <div class="field form-full">
+        <label>Descrição *</label>
+        <input type="text" id="eDesc" placeholder="Ex: Almoço com cliente" required />
+      </div>
+      <div class="field form-full">
+        <label>Observação</label>
+        <textarea id="eNote" placeholder="Informações adicionais..."></textarea>
+      </div>
+      <div class="field form-full">
+        <label>Comprovante (foto/imagem)</label>
+        <div class="photo-upload" onclick="document.getElementById('ePhoto').click()" id="photoZone">
+          <input type="file" id="ePhoto" accept="image/*" onchange="previewPhoto(this)" />
+          <span id="photoIcon" style="font-size:32px">📎</span>
+          <span class="photo-upload-label" id="photoLabel">Clique para adicionar foto do comprovante</span>
+          <img id="photoPreview" style="display:none;margin-top:8px" />
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('expense')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Salvar Despesa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nova Pessoa -->
+<div class="overlay" id="modalPerson">
+  <div class="modal" style="width:420px">
+    <h2 class="modal-title">Nova Pessoa</h2>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label>Nome completo *</label>
+        <input type="text" id="pName" required placeholder="Ex: Ana Souza" />
+      </div>
+      <div class="field">
+        <label>Cargo / Função</label>
+        <input type="text" id="pRole" placeholder="Ex: Analista de Campo" />
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input type="email" id="pEmail" placeholder="ana@workingtrees.com" />
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('person')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePerson()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="document.getElementById('lightbox').classList.remove('open')">
+  <button class="close-btn">✕</button>
+  <img id="lightboxImg" src="" alt="Comprovante" />
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ─────────────────────────────────────
+let state = {
+  expenses: [],
+  people: [],
+  categories: ['Alimentação','Transporte','Hospedagem','Combustível','Material de Escritório','Comunicação','Entretenimento','Outros'],
+  editingExpenseId: null,
+  githubToken: '',
+  gistId: ''
+};
+
+const STORAGE_KEY = 'maxxexpenses_v2';
+
+// ── PERSIST ───────────────────────────────────
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    expenses: state.expenses,
+    people: state.people,
+    categories: state.categories,
+    githubToken: state.githubToken,
+    gistId: state.gistId
+  }));
+}
+
+function load() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const d = JSON.parse(raw);
+    state.expenses  = d.expenses  || [];
+    state.people    = d.people    || [];
+    state.categories = d.categories || state.categories;
+    state.githubToken = d.githubToken || '';
+    state.gistId    = d.gistId    || '';
+  }
+}
+
+// ── HELPERS ───────────────────────────────────
+const fmtBRL = v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtDate = d => d ? new Date(d+'T12:00:00').toLocaleDateString('pt-BR') : '';
+const initials = name => name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+function personName(id) {
+  const p = state.people.find(p=>p.id===id);
+  return p ? p.name : '—';
+}
+
+function toast(msg, duration=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), duration);
+}
+
+function badgeHtml(status) {
+  const cls = { Pendente:'badge-pending', Aprovado:'badge-approved', Rejeitado:'badge-rejected' };
+  return `<span class="badge ${cls[status]||'badge-pending'}">${status}</span>`;
+}
+
+// ── NAVIGATION ────────────────────────────────
+const TITLES = {
+  dashboard:'Dashboard', expenses:'Despesas', persons:'Por Pessoa',
+  monthly:'Por Mês', people:'Equipe', settings:'Configurações'
+};
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelector(`[onclick="showSection('${id}')"]`).classList.add('active');
+  document.getElementById('pageTitle').textContent = TITLES[id]||'';
+  if (id==='dashboard') renderDashboard();
+  if (id==='expenses')  renderExpenses();
+  if (id==='persons')   renderPersons();
+  if (id==='monthly')   renderMonthly();
+  if (id==='people')    renderPeople();
+  if (id==='settings')  loadGithubSettings();
+}
+
+// ── DASHBOARD ─────────────────────────────────
+function renderDashboard() {
+  const total = state.expenses.reduce((a,e)=>a+parseFloat(e.amount||0),0);
+  const pending = state.expenses.filter(e=>e.status==='Pendente').reduce((a,e)=>a+parseFloat(e.amount||0),0);
+  const approved = state.expenses.filter(e=>e.status==='Aprovado').reduce((a,e)=>a+parseFloat(e.amount||0),0);
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const monthly = state.expenses.filter(e=>e.date&&e.date.startsWith(thisMonth)).reduce((a,e)=>a+parseFloat(e.amount||0),0);
+
+  document.getElementById('dashCards').innerHTML = `
+    <div class="card">
+      <div class="card-label">Total Geral</div>
+      <div class="card-value">${fmtBRL(total)}</div>
+      <div class="card-sub">${state.expenses.length} despesa(s)</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Aprovado</div>
+      <div class="card-value green">${fmtBRL(approved)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Pendente</div>
+      <div class="card-value" style="color:var(--amber-400)">${fmtBRL(pending)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Este Mês</div>
+      <div class="card-value">${fmtBRL(monthly)}</div>
+    </div>
+  `;
+
+  const recent = [...state.expenses].sort((a,b)=>b.date>a.date?1:-1).slice(0,8);
+  document.getElementById('dashTable').innerHTML = expenseTable(recent, false);
+
+  // Hide banner if token saved
+  const banner = document.getElementById('githubBanner');
+  if (banner) banner.style.display = state.githubToken ? 'none' : '';
+}
+
+// ── EXPENSE TABLE ─────────────────────────────
+function expenseTable(list, editable=true) {
+  if (!list.length) return `<div class="empty"><div class="empty-icon">🧾</div><h4>Nenhuma despesa</h4><p>Clique em "+ Nova Despesa" para começar.</p></div>`;
+  const rows = list.map(e => {
+    const p = state.people.find(p=>p.id===e.personId);
+    const avatarBg = stringToColor(e.personId||'?');
+    return `
+      <tr onclick="editExpense('${e.id}')">
+        <td>
+          <div class="thumb" onclick="event.stopPropagation();openPhoto('${e.photo||''}')">
+            ${e.photo ? `<img src="${e.photo}" />` : '📷'}
+          </div>
+        </td>
+        <td>${fmtDate(e.date)}</td>
+        <td>
+          <div class="person-cell">
+            <span class="avatar" style="background:${avatarBg}">${p?initials(p.name):'?'}</span>
+            ${p?p.name:'—'}
+          </div>
+        </td>
+        <td>${e.category||'—'}</td>
+        <td>${e.description||'—'}</td>
+        <td class="amount-cell">${fmtBRL(e.amount||0)}</td>
+        <td>${badgeHtml(e.status)}</td>
+        ${editable?`<td><button class="btn btn-danger" style="padding:5px 10px;font-size:12px" onclick="event.stopPropagation();deleteExpense('${e.id}')">🗑</button></td>`:''}
+      </tr>
+    `;
+  }).join('');
+
+  return `<table>
+    <thead><tr>
+      <th>Comprovante</th><th>Data</th><th>Pessoa</th>
+      <th>Categoria</th><th>Descrição</th><th>Valor</th><th>Status</th>
+      ${editable?'<th></th>':''}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ── EXPENSES PAGE ─────────────────────────────
+function renderExpenses() {
+  // Populate person filter
+  const pSel = document.getElementById('filterPerson');
+  const catSel = document.getElementById('filterCat');
+  const curP = pSel.value, curC = catSel.value;
+
+  pSel.innerHTML = '<option value="">Todas as pessoas</option>' +
+    state.people.map(p=>`<option value="${p.id}" ${p.id===curP?'selected':''}>${p.name}</option>`).join('');
+
+  catSel.innerHTML = '<option value="">Todas as categorias</option>' +
+    state.categories.map(c=>`<option value="${c}" ${c===curC?'selected':''}>${c}</option>`).join('');
+
+  const month  = document.getElementById('filterMonth').value;
+  const person = document.getElementById('filterPerson').value;
+  const status = document.getElementById('filterStatus').value;
+  const cat    = document.getElementById('filterCat').value;
+
+  let list = state.expenses;
+  if (month)  list = list.filter(e=>e.date&&e.date.startsWith(month));
+  if (person) list = list.filter(e=>e.personId===person);
+  if (status) list = list.filter(e=>e.status===status);
+  if (cat)    list = list.filter(e=>e.category===cat);
+
+  list = [...list].sort((a,b)=>b.date>a.date?1:-1);
+
+  const total = list.reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  document.getElementById('expTableTitle').textContent = `${list.length} despesa(s) encontrada(s)`;
+  document.getElementById('expTotal').textContent = 'Total: ' + fmtBRL(total);
+  document.getElementById('expTable').innerHTML = expenseTable(list);
+}
+
+// ── PERSON SECTION ────────────────────────────
+function renderPersons() {
+  const grid = document.getElementById('personCards');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fill,minmax(280px,1fr))';
+  grid.style.gap = '16px';
+  document.getElementById('personDetail').style.display = 'none';
+
+  if (!state.people.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">👤</div><h4>Nenhuma pessoa cadastrada</h4><p>Adicione membros da equipe em "Equipe".</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = state.people.map(p => {
+    const exps = state.expenses.filter(e=>e.personId===p.id);
+    const total = exps.reduce((s,e)=>s+parseFloat(e.amount||0),0);
+    const pending = exps.filter(e=>e.status==='Pendente').reduce((s,e)=>s+parseFloat(e.amount||0),0);
+    const bg = stringToColor(p.id);
+    return `
+      <div class="person-card" onclick="showPersonDetail('${p.id}')">
+        <div class="person-card-top">
+          <span class="avatar" style="width:44px;height:44px;font-size:16px;background:${bg}">${initials(p.name)}</span>
+          <div>
+            <div class="person-card-name">${p.name}</div>
+            <div class="person-card-role">${p.role||'—'}</div>
+          </div>
+        </div>
+        <div class="person-stat"><span class="person-stat-label">Total gasto</span><span class="person-stat-value">${fmtBRL(total)}</span></div>
+        <div class="person-stat"><span class="person-stat-label">Nº de despesas</span><span class="person-stat-value">${exps.length}</span></div>
+        <div class="person-stat"><span class="person-stat-label">Pendente</span><span class="person-stat-value" style="color:var(--amber-400)">${fmtBRL(pending)}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showPersonDetail(personId) {
+  const p = state.people.find(p=>p.id===personId);
+  if (!p) return;
+  document.getElementById('personCards').style.display = 'none';
+  document.getElementById('personDetail').style.display = 'block';
+  document.getElementById('personDetailTitle').textContent = `Despesas de ${p.name}`;
+
+  const exps = state.expenses.filter(e=>e.personId===personId);
+  const total = exps.reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  const approved = exps.filter(e=>e.status==='Aprovado').reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  const pending  = exps.filter(e=>e.status==='Pendente').reduce((s,e)=>s+parseFloat(e.amount||0),0);
+
+  document.getElementById('personDetailCards').innerHTML = `
+    <div class="card"><div class="card-label">Total</div><div class="card-value">${fmtBRL(total)}</div></div>
+    <div class="card"><div class="card-label">Aprovado</div><div class="card-value green">${fmtBRL(approved)}</div></div>
+    <div class="card"><div class="card-label">Pendente</div><div class="card-value" style="color:var(--amber-400)">${fmtBRL(pending)}</div></div>
+    <div class="card"><div class="card-label">Despesas</div><div class="card-value">${exps.length}</div></div>
+  `;
+
+  document.getElementById('personDetailTable').innerHTML = expenseTable([...exps].sort((a,b)=>b.date>a.date?1:-1));
+}
+
+// ── MONTHLY SECTION ───────────────────────────
+function renderMonthly() {
+  const months = {};
+  state.expenses.forEach(e => {
+    const m = (e.date||'').slice(0,7);
+    if (!m) return;
+    if (!months[m]) months[m] = { total:0, count:0, persons:{} };
+    const v = parseFloat(e.amount||0);
+    months[m].total += v;
+    months[m].count++;
+    if (!months[m].persons[e.personId]) months[m].persons[e.personId] = 0;
+    months[m].persons[e.personId] += v;
+  });
+
+  const sorted = Object.keys(months).sort().reverse();
+
+  if (!sorted.length) {
+    document.getElementById('monthlyTable').innerHTML = `<div class="empty"><div class="empty-icon">📅</div><h4>Nenhum dado</h4><p>Registre despesas para ver o relatório mensal.</p></div>`;
+    return;
+  }
+
+  const html = sorted.map(m => {
+    const dt = m + '-01';
+    const label = new Date(dt+'T12:00:00').toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+    const data = months[m];
+    const topPersons = Object.entries(data.persons)
+      .sort((a,b)=>b[1]-a[1]).slice(0,3)
+      .map(([pid,v])=>`<span style="font-size:12px;color:var(--slate-500)">${personName(pid)}: ${fmtBRL(v)}</span>`)
+      .join(' &nbsp;·&nbsp; ');
+
+    return `
+      <div class="table-card" style="margin-bottom:18px">
+        <div class="table-header" style="cursor:pointer" onclick="filterByMonth('${m}')">
+          <div>
+            <h3 style="text-transform:capitalize">${label}</h3>
+            <div style="margin-top:4px">${topPersons}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:20px;font-weight:800;color:var(--green-600)">${fmtBRL(data.total)}</div>
+            <div style="font-size:12px;color:var(--slate-500)">${data.count} despesa(s)</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('monthlyTable').innerHTML = html;
+}
+
+function filterByMonth(m) {
+  document.getElementById('filterMonth').value = m;
+  showSection('expenses');
+}
+
+// ── PEOPLE PAGE ───────────────────────────────
+function renderPeople() {
+  if (!state.people.length) {
+    document.getElementById('peopleList').innerHTML = `<div class="empty"><div class="empty-icon">👥</div><h4>Nenhum membro</h4><p>Adicione pessoas para registrar despesas.</p></div>`;
+    return;
+  }
+  document.getElementById('peopleList').innerHTML = `
+    <div class="table-card">
+      <table>
+        <thead><tr><th>Nome</th><th>Cargo</th><th>E-mail</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+          ${state.people.map(p => {
+            const total = state.expenses.filter(e=>e.personId===p.id).reduce((s,e)=>s+parseFloat(e.amount||0),0);
+            const bg = stringToColor(p.id);
+            return `<tr>
+              <td><div class="person-cell"><span class="avatar" style="background:${bg}">${initials(p.name)}</span>${p.name}</div></td>
+              <td>${p.role||'—'}</td><td>${p.email||'—'}</td>
+              <td class="amount-cell">${fmtBRL(total)}</td>
+              <td><button class="btn btn-danger" style="padding:5px 10px;font-size:12px" onclick="deletePerson('${p.id}')">Remover</button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ── MODAL: EXPENSE ─────────────────────────────
+function openModal(type) {
+  if (type==='expense') {
+    state.editingExpenseId = null;
+    document.getElementById('expModalTitle').textContent = 'Nova Despesa';
+    document.getElementById('ePersonId').innerHTML = state.people.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+    document.getElementById('eCategory').innerHTML = state.categories.map(c=>`<option>${c}</option>`).join('');
+    document.getElementById('eDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('eAmount').value = '';
+    document.getElementById('eDesc').value = '';
+    document.getElementById('eNote').value = '';
+    document.getElementById('eStatus').value = 'Pendente';
+    clearPhoto();
+    document.getElementById('modalExpense').classList.add('open');
+  } else {
+    document.getElementById('pName').value='';
+    document.getElementById('pRole').value='';
+    document.getElementById('pEmail').value='';
+    document.getElementById('modalPerson').classList.add('open');
+  }
+}
+
+function closeModal(type) {
+  document.getElementById('modal'+type.charAt(0).toUpperCase()+type.slice(1)).classList.remove('open');
+}
+
+function editExpense(id) {
+  const e = state.expenses.find(e=>e.id===id);
+  if (!e) return;
+  state.editingExpenseId = id;
+  document.getElementById('expModalTitle').textContent = 'Editar Despesa';
+  document.getElementById('ePersonId').innerHTML = state.people.map(p=>`<option value="${p.id}" ${p.id===e.personId?'selected':''}>${p.name}</option>`).join('');
+  document.getElementById('eCategory').innerHTML = state.categories.map(c=>`<option ${c===e.category?'selected':''}>${c}</option>`).join('');
+  document.getElementById('eDate').value = e.date;
+  document.getElementById('eAmount').value = e.amount;
+  document.getElementById('eDesc').value = e.description;
+  document.getElementById('eNote').value = e.note||'';
+  document.getElementById('eStatus').value = e.status||'Pendente';
+  if (e.photo) {
+    document.getElementById('photoPreview').src = e.photo;
+    document.getElementById('photoPreview').style.display = 'block';
+    document.getElementById('photoIcon').style.display = 'none';
+    document.getElementById('photoLabel').textContent = 'Clique para trocar';
+  } else {
+    clearPhoto();
+  }
+  document.getElementById('modalExpense').classList.add('open');
+}
+
+function saveExpense() {
+  const personId = document.getElementById('ePersonId').value;
+  const date     = document.getElementById('eDate').value;
+  const amount   = document.getElementById('eAmount').value;
+  const desc     = document.getElementById('eDesc').value.trim();
+  const category = document.getElementById('eCategory').value;
+  const status   = document.getElementById('eStatus').value;
+  const note     = document.getElementById('eNote').value.trim();
+  const photo    = document.getElementById('photoPreview').src.startsWith('data:') ? document.getElementById('photoPreview').src : '';
+
+  if (!personId||!date||!amount||!desc) { toast('⚠ Preencha os campos obrigatórios.'); return; }
+
+  if (state.editingExpenseId) {
+    const idx = state.expenses.findIndex(e=>e.id===state.editingExpenseId);
+    state.expenses[idx] = { id:state.editingExpenseId, personId, date, amount:parseFloat(amount), description:desc, category, status, note, photo };
+    toast('✅ Despesa atualizada!');
+  } else {
+    state.expenses.push({ id:uid(), personId, date, amount:parseFloat(amount), description:desc, category, status, note, photo });
+    toast('✅ Despesa registrada!');
+  }
+
+  save();
+  if (state.githubToken) syncToGist();
+  closeModal('expense');
+  renderExpenses();
+  renderDashboard();
+}
+
+function deleteExpense(id) {
+  if (!confirm('Remover esta despesa?')) return;
+  state.expenses = state.expenses.filter(e=>e.id!==id);
+  save();
+  if (state.githubToken) syncToGist();
+  renderExpenses();
+  renderDashboard();
+  toast('🗑 Despesa removida.');
+}
+
+// ── MODAL: PERSON ─────────────────────────────
+function savePerson() {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { toast('⚠ Informe o nome.'); return; }
+  state.people.push({ id:uid(), name, role:document.getElementById('pRole').value.trim(), email:document.getElementById('pEmail').value.trim() });
+  save();
+  closeModal('person');
+  renderPeople();
+  toast('✅ Pessoa adicionada!');
+}
+
+function deletePerson(id) {
+  if (!confirm('Remover esta pessoa? As despesas associadas serão mantidas.')) return;
+  state.people = state.people.filter(p=>p.id!==id);
+  save();
+  renderPeople();
+  toast('🗑 Pessoa removida.');
+}
+
+// ── PHOTO ─────────────────────────────────────
+function previewPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('photoPreview').src = e.target.result;
+    document.getElementById('photoPreview').style.display = 'block';
+    document.getElementById('photoIcon').style.display = 'none';
+    document.getElementById('photoLabel').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('photoIcon').style.display = 'block';
+  document.getElementById('photoLabel').textContent = 'Clique para adicionar foto do comprovante';
+  document.getElementById('ePhoto').value = '';
+}
+
+function openPhoto(src) {
+  if (!src) return;
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+// ── EXPORT / IMPORT ───────────────────────────
+function exportCSV() {
+  const headers = ['Data','Pessoa','Categoria','Descrição','Valor','Status','Observação'];
+  const rows = state.expenses.map(e => [
+    e.date, personName(e.personId), e.category, e.description,
+    parseFloat(e.amount||0).toFixed(2), e.status, e.note||''
+  ]);
+  const csv = [headers, ...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  dlFile('\uFEFF'+csv, 'despesas_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8;');
+  toast('⬇ CSV exportado!');
+}
+
+function exportJSON() {
+  dlFile(JSON.stringify({expenses:state.expenses, people:state.people}, null, 2), 'expenseflow_backup.json', 'application/json');
+  toast('⬇ JSON exportado!');
+}
+
+function importJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (d.expenses) state.expenses = d.expenses;
+      if (d.people)   state.people   = d.people;
+      save();
+      renderDashboard();
+      toast('✅ Dados importados!');
+    } catch { toast('❌ Arquivo inválido.'); }
+  };
+  reader.readAsText(file);
+}
+
+function dlFile(content, name, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type}));
+  a.download = name;
+  a.click();
+}
+
+function clearData() {
+  if (!confirm('Apagar TODOS os dados? Esta ação não pode ser desfeita.')) return;
+  state.expenses = []; state.people = [];
+  save();
+  renderDashboard();
+  toast('🗑 Dados apagados.');
+}
+
+// ── GITHUB GIST ───────────────────────────────
+function loadGithubSettings() {
+  document.getElementById('ghToken').value  = state.githubToken || '';
+  document.getElementById('ghGistId').value = state.gistId || '';
+}
+
+function saveGithubSettings() {
+  state.githubToken = document.getElementById('ghToken').value.trim();
+  state.gistId      = document.getElementById('ghGistId').value.trim();
+  save();
+  syncToGist();
+}
+
+async function syncToGist() {
+  if (!state.githubToken) return;
+  const content = JSON.stringify({ expenses: state.expenses, people: state.people }, null, 2);
+  const body = { description: 'MaxxExpenses Data', public: false, files: { 'maxxexpenses.json': { content } } };
+  try {
+    let url = 'https://api.github.com/gists';
+    let method = 'POST';
+    if (state.gistId) { url += '/'+state.gistId; method = 'PATCH'; }
+
+    const res = await fetch(url, {
+      method,
+      headers: { Authorization: 'Bearer '+state.githubToken, 'Content-Type':'application/json', 'X-GitHub-Api-Version':'2022-11-28' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.id) {
+      state.gistId = data.id;
+      document.getElementById('ghGistId').value = data.id;
+      save();
+      toast('☁ Dados sincronizados com GitHub Gist!');
+    } else {
+      toast('❌ Erro ao sincronizar: '+(data.message||'resposta inesperada'));
+    }
+  } catch (err) {
+    toast('❌ Falha na conexão com GitHub.');
+  }
+}
+
+async function syncFromGist() {
+  const token  = document.getElementById('ghToken').value.trim();
+  const gistId = document.getElementById('ghGistId').value.trim();
+  if (!token||!gistId) { toast('⚠ Informe o token e o Gist ID.'); return; }
+
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { Authorization: 'Bearer '+token, 'X-GitHub-Api-Version':'2022-11-28' }
+    });
+    const data = await res.json();
+    const raw = data.files?.['maxxexpenses.json']?.content;
+    if (!raw) { toast('❌ Arquivo não encontrado no Gist.'); return; }
+    const d = JSON.parse(raw);
+    if (d.expenses) state.expenses = d.expenses;
+    if (d.people)   state.people   = d.people;
+    state.githubToken = token;
+    state.gistId = gistId;
+    save();
+    renderDashboard();
+    toast('✅ Dados importados do GitHub Gist!');
+  } catch { toast('❌ Erro ao importar do Gist.'); }
+}
+
+// ── UTILS ─────────────────────────────────────
+function stringToColor(str) {
+  let hash = 0;
+  for (let i=0; i<str.length; i++) hash = str.charCodeAt(i) + ((hash<<5)-hash);
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue},55%,38%)`;
+}
+
+// ── DEMO DATA ─────────────────────────────────
+function seedDemo() {
+  state.people = [
+    {id:'p1', name:'Ana Souza', role:'Analista de Campo', email:'ana@workingtrees.com'},
+    {id:'p2', name:'Carlos Mota', role:'Originador Sênior', email:'carlos@workingtrees.com'},
+    {id:'p3', name:'Beatriz Lima', role:'Coordenadora Regional', email:'bea@workingtrees.com'},
+  ];
+  const cats = state.categories;
+  const statuses = ['Aprovado','Aprovado','Pendente','Pendente','Rejeitado'];
+  const people = ['p1','p2','p3'];
+  for (let i=0; i<18; i++) {
+    const d = new Date(); d.setDate(d.getDate()-Math.floor(Math.random()*90));
+    state.expenses.push({
+      id: uid(),
+      personId: people[i%3],
+      date: d.toISOString().slice(0,10),
+      amount: parseFloat((Math.random()*800+20).toFixed(2)),
+      description: ['Almoço com produtor rural','Combustível – vistoria','Hotel – missão técnica','Material de campo','Passagem aérea','Impressão de contratos'][i%6],
+      category: cats[i%cats.length],
+      status: statuses[i%5],
+      note: '',
+      photo: ''
+    });
+  }
+  save();
+}
+
+// ── INIT ──────────────────────────────────────
+load();
+if (!state.people.length && !state.expenses.length) seedDemo();
+renderDashboard();
+
+// Close overlay on background click
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); }));
+</script>
+</body>
+</html>
